@@ -1,0 +1,24 @@
+{% extends "base.html" %} {% block title %}
+<h1 class="headline">Camus</h1>
+<p class="sub-headline">
+    Peer-to-peer<br/> group video chat.
+</p>
+{% endblock %} {% block app_content %}
+<main class="create-room-area">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="dialog slide-down" id="create-room-dialog">
+                <h2 class="title">Create a room</h2>
+                <form method="post" id="create-room-form">
+                    {% csrf_token %}
+                    <div class="input-line">
+                        {% for i in create_room_form %} {{i}} {% endfor %}
+                        <input class="btn btn-secondary" type="submit" value="Go">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}

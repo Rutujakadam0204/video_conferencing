@@ -1,0 +1,7 @@
+peer joins room
+sends message to all other peers indicating its entry
+all other peers get notified of new peer through this message
+each existing peer initiates peer connection with new peer (offer sdp)
+new peer receives each offer sdpnew peer sends response (answer sdp) for each offer sdp
+other peers receive respective answer sdps
+new peer connected with each existing peer(mesh)

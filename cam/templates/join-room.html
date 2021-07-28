@@ -1,0 +1,19 @@
+ {% extends "base.html" %} {% block app_content %}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="dialog slide-down" id="create-room-dialog">
+            <h5>Join {{ room.name}}</h5>
+            <form method="post" action="{{ room.slug }}">
+                {% csrf_token %}
+                <div class="input-line">
+                    {% for i in form %}{{i}}{% endfor %}
+                </div>
+                <input class="btn btn-secondary" id="submit" name="submit" type="submit" value="Go">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
