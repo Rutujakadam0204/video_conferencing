@@ -1,5 +1,7 @@
 console.log("In main.js");
 
+
+
 var mapPeers = {};
 
 var usernameInput = document.getElementById('username')
@@ -66,7 +68,7 @@ btnJoin.addEventListener('click', () => {
         wsStart = 'wss://';
     }
 
-    var endPoint = wsStart + loc.host + loc.pathname;
+    var endPoint = wsStart + loc.host + loc.pathname + '/';
 
     console.log('endPoint', endPoint);
 
@@ -91,10 +93,14 @@ btnJoin.addEventListener('click', () => {
 
 var localStream = new MediaStream();
 
-const constraints = {
-    'video': true,
-    'audio': true
-}
+// const constraints = {
+//     'video': true,
+//     'audio': true
+// }
+const constraints = window.constraints = {
+    audio: true,
+    video: true
+};
 
 const localVideo = document.querySelector('#local-video');
 
@@ -140,6 +146,31 @@ var userMedia = navigator.mediaDevices.getUserMedia(constraints)
 });
 
 
+
+
+var btnSendMsg = document.querySelector('#btn-send-msg');
+var messageList = document.querySelector('#message-list');
+var messageInput = document.querySelector('#msg');
+
+btnSendMsg.addEventListener('click', sendMsgOnClick);
+
+function sendMsgOnClick() {
+    var message = messageInput.value;
+
+    var li = document.createElement('li');
+    li.appendChild(document.createTextNode('Me: ' + message));
+    messageList.appendChild(li);
+
+    var dataChannels = getDataChannels();
+
+    message = username + ': ' + message;
+
+    for (index in dataChannels) {
+        dataChannels[index].send(message);
+    }
+
+    messageInput.value = '';
+}
 
 
 
@@ -188,7 +219,7 @@ function createOfferer(peerUsername, receiver_channel_name) {
 
         sendSignal('new-offer', {
             'sdp': peer.localDescription,
-            'receiver_channel_layer': receiver_channel_name
+            'receiver_channel_name': receiver_channel_name
         })
     });
 
@@ -235,16 +266,16 @@ function createAnswerer(offer, peerUsername, receiver_channel_name) {
             return;
         }
 
-        sendSignal('new-offer', {
+        sendSignal('new-answer', {
             'sdp': peer.localDescription,
-            'receiver_channel_layer': receiver_channel_name
+            'receiver_channel_name': receiver_channel_name
         })
     });
 
     peer.setRemoteDescription(offer)
         .then(() => {
             console.log('remote description set successfully for %s.', peerUsername);
-            return peer.createAnswerer();
+            return peer.createAnswer();
         })
 
     .then(a => {
@@ -281,6 +312,7 @@ function createVideo(peerUsername) {
     remoteVideo.id = peerUsername + '-video';
     remoteVideo.autoplay = true;
     remoteVideo.playsInline = true;
+    remoteVideo.controls = true;
 
     var videoWrapper = document.createElement('div');
     videoContainer.appendChild(videoWrapper);
@@ -303,4 +335,16 @@ function removeVideo(video) {
     var videoWrapper = video.parentNode;
 
     videoWrapper.parentNode.removeChild(videoWrapper);
+}
+
+function getDataChannels() {
+    var dataChannels = [];
+
+    for (peerUsername in mapPeers) {
+        var dataChannel = mapPeers[peerUsername][1];
+
+        dataChannels.push(dataChannel);
+    }
+
+    return dataChannels;
 }
